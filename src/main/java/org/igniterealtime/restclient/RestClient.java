@@ -5,6 +5,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
@@ -13,25 +14,24 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.ext.ContextResolver;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.ext.ContextResolver;
 
 import org.eclipse.persistence.jaxb.JAXBContextProperties;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.internal.util.Base64;
 import org.glassfish.jersey.moxy.json.MoxyJsonConfig;
 import org.glassfish.jersey.moxy.json.MoxyJsonFeature;
 import org.glassfish.jersey.moxy.xml.MoxyXmlFeature;
@@ -135,7 +135,7 @@ public final class RestClient {
 				restPath,
 				Response.class,
 				payload,
-		queryParams);
+				queryParams);
 	}
 
 	/**
@@ -155,7 +155,7 @@ public final class RestClient {
 				restPath,
 				Response.class,
 				null,
-		queryParams);
+				queryParams);
 	}
 
 	/**
@@ -412,7 +412,8 @@ public final class RestClient {
 			if (token.getAuthMode() == AuthenticationMode.SHARED_SECRET_KEY) {
 				headers.add(HttpHeaders.AUTHORIZATION, token.getSharedSecretKey());
 			} else if (token.getAuthMode() == AuthenticationMode.BASIC_AUTH) {
-				String base64 = Base64.encodeAsString(token.getUsername() + ":" + token.getPassword());
+				String base64 = Base64.getEncoder()
+						.encodeToString((token.getUsername() + ":" + token.getPassword()).getBytes());
 				headers.add(HttpHeaders.AUTHORIZATION, "Basic " + base64);
 			}
 
